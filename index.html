@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker Dieta Chetogenica</title>
+    
+    <!-- Favicon con emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥑</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .database-info {
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .database-info button {
+            background-color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .database-info button:hover {
+            background-color: #c0392b;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .food-selector {
+            margin-bottom: 20px;
+        }
+
+        .food-selector h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Stili per il box di ricerca */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #2980b9;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 20px;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .suggestion-item.selected {
+            background-color: #e3f2fd;
+        }
+
+        .suggestion-category {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-left: 10px;
+        }
+
+        .suggestion-nutrients {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .food-list {
+            margin-top: 20px;
+        }
+
+        .food-item {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-btn {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+            font-size: 14px;
+            width: auto;
+            margin: 0;
+        }
+
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-box h4 {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .status-catabolismo {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+
+        .status-anabolismo {
+            background-color: #ffebee;
+            border: 2px solid #f44336;
+        }
+
+        .status-chetosi {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+
+        .status-no-chetosi {
+            background-color: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        .user-info {
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-info h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .user-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .user-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥗 Tracker Dieta Chetogenica</h1>
+            <p>Monitora la tua alimentazione e verifica se sei in chetosi</p>
+        </div>
+
+        <div class="database-info" id="databaseInfo">
+            <h3>📊 Database Alimenti</h3>
+            <p id="dbStatus">Stai usando il database BASE con <span id="foodCount">0</span> alimenti</p>
+            <div id="loader" class="loader"></div>
+            <button onclick="loadFullDatabase()" id="loadDbBtn">🚀 Carica Database Completo (400+ alimenti)</button>
+        </div>
+
+        <div class="card user-info">
+            <h3>📊 I tuoi dati</h3>
+            <div class="user-info-grid">
+                <div>
+                    <label>Peso (kg):</label>
+                    <input type="number" id="userWeight" placeholder="Es: 70" value="70">
+                </div>
+                <div>
+                    <label>Altezza (cm):</label>
+                    <input type="number" id="userHeight" placeholder="Es: 175" value="175">
+                </div>
+                <div>
+                    <label>Età:</label>
+                    <input type="number" id="userAge" placeholder="Es: 30" value="30">
+                </div>
+                <div>
+                    <label>Sesso:</label>
+                    <select id="userGender">
+                        <option value="male">Maschio</option>
+                        <option value="female">Femmina</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Livello di attività:</label>
+                    <select id="activityLevel">
+                        <option value="1.2">Sedentario</option>
+                        <option value="1.375">Leggermente attivo</option>
+                        <option value="1.55">Moderatamente attivo</option>
+                        <option value="1.725">Molto attivo</option>
+                        <option value="1.9">Estremamente attivo</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="calculateBMR()">Calcola Fabbisogno Calorico</button>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <!-- Box di ricerca -->
+                <div class="search-box">
+                    <h3>🔍 Ricerca Rapida Alimenti</h3>
+                    <div style="position: relative; margin-top: 10px;">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Digita per cercare un alimento..."
+                            autocomplete="off"
+                        >
+                        <span class="search-icon">🔍</span>
+                        <div id="suggestionsList" class="suggestions-list"></div>
+                    </div>
+                </div>
+
+                <div class="food-selector">
+                    <h3>🍽️ Oppure Seleziona per Categoria</h3>
+                    <div class="food-grid">
+                        <select id="foodCategory" onchange="updateFoodList()">
+                            <option value="">Seleziona categoria</option>
+                        </select>
+                        <select id="foodSelect">
+                            <option value="">Seleziona alimento</option>
+                        </select>
+                    </div>
+                    <input type="number" id="foodQuantity" placeholder="Quantità (grammi)" min="1">
+                    <button onclick="addFood()">Aggiungi Alimento</button>
+                </div>
+
+                <div class="food-list">
+                    <h3>📋 Alimenti Consumati Oggi</h3>
+                    <div id="consumedFoods"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Riepilogo Nutrizionale</h3>
+                <div class="stats">
+                    <div class="stat-box">
+                        <h4>Calorie</h4>
+                        <p id="totalCalories">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Proteine (g)</h4>
+                        <p id="totalProteins">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Carboidrati (g)</h4>
+                        <p id="totalCarbs">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Grassi (g)</h4>
+                        <p id="totalFats">0</p>
+                    </div>
+                </div>
+
+                <div id="metabolicStatus"></div>
+                <div id="bmrInfo" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;"></div>
+            </div>
+        </div>
+
+        <!-- Pulsanti extra -->
+        <div class="card" style="margin-top: 20px;">
+            <h3>🛠️ Strumenti</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px;">
+                <button onclick="saveDiet()" style="background-color: #4caf50;">💾 Salva Dieta</button>
+                <button onclick="loadDiet()" style="background-color: #2196f3;">📂 Carica Dieta Salvata</button>
+                <button onclick="resetDiet()" style="background-color: #f44336;">🗑️ Reset Dieta</button>
+            </div>
+        </div>
+
+        <!-- Info sulla chetosi -->
+        <div class="card" style="margin-top: 20px;">
+            <h3>📚 Guida Rapida alla Chetosi</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div>
+                    <h4>🎯 Obiettivi per Chetosi:</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Carboidrati:</strong> < 20-50g/giorno</li>
+                        <li><strong>Proteine:</strong> 0.8-1.5g per kg peso</li>
+                        <li><strong>Grassi:</strong> 70-80% delle calorie</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>⚡ Segni di Chetosi:</h4>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>Maggiore energia mentale</li>
+                        <li>Riduzione dell'appetito</li>
+                        <li>Alito fruttato</li>
+                        <li>Perdita di peso rapida iniziale</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database BASE con pochi alimenti essenziali
+        let foodDatabase = {
+            proteine: {
+                "Petto di pollo": { calories: 165, proteins: 31, carbs: 0, fats: 3.6 },
+                "Manzo magro": { calories: 250, proteins: 26, carbs: 0, fats: 15 },
+                "Salmone": { calories: 208, proteins: 20, carbs: 0, fats: 13 },
+                "Uova": { calories: 155, proteins: 13, carbs: 1.1, fats: 11 },
+                "Tonno": { calories: 132, proteins: 28, carbs: 0, fats: 1 },
+                "Prosciutto cotto": { calories: 145, proteins: 21, carbs: 1, fats: 6 },
+                "Bresaola": { calories: 151, proteins: 32, carbs: 0, fats: 2.6 }
+            },
+            grassi: {
+                "Olio d'oliva": { calories: 884, proteins: 0, carbs: 0, fats: 100 },
+                "Burro": { calories: 717, proteins: 0.9, carbs: 0.1, fats: 81 },
+                "Avocado": { calories: 160, proteins: 2, carbs: 9, fats: 15 },
+                "Noci": { calories: 654, proteins: 15, carbs: 14, fats: 65 },
+                "Mandorle": { calories: 579, proteins: 21, carbs: 22, fats: 50 }
+            },
+            carboidrati: {
+                "Pasta": { calories: 371, proteins: 13, carbs: 75, fats: 1.5 },
+                "Riso bianco": { calories: 365, proteins: 7, carbs: 80, fats: 0.7 },
+                "Pane bianco": { calories: 265, proteins: 9, carbs: 49, fats: 3.2 },
+                "Patate": { calories: 77, proteins: 2, carbs: 17, fats: 0.1 },
+                "Quinoa": { calories: 368, proteins: 14, carbs: 64, fats: 6 }
+            },
+            verdure: {
+                "Spinaci": { calories: 23, proteins: 2.9, carbs: 3.6, fats: 0.4 },
+                "Broccoli": { calories: 34, proteins: 2.8, carbs: 7, fats: 0.4 },
+                "Zucchine": { calories: 17, proteins: 1.2, carbs: 3.1, fats: 0.3 },
+                "Pomodori": { calories: 18, proteins: 0.9, carbs: 3.9, fats: 0.2 },
+                "Cavolfiore": { calories: 25, proteins: 1.9, carbs: 5, fats: 0.3 },
+                "Insalata": { calories: 15, proteins: 1.4, carbs: 2.9, fats: 0.2 }
+            },
+            latticini: {
+                "Latte intero": { calories: 61, proteins: 3.2, carbs: 4.8, fats: 3.3 },
+                "Yogurt greco": { calories: 97, proteins: 9, carbs: 4, fats: 5 },
+                "Mozzarella": { calories: 280, proteins: 22, carbs: 2.2, fats: 20 },
+                "Parmigiano": { calories: 431, proteins: 38, carbs: 4.1, fats: 29 },
+                "Ricotta": { calories: 174, proteins: 11, carbs: 3, fats: 13 }
+            },
+            frutta: {
+                "Fragole": { calories: 32, proteins: 0.7, carbs: 7.7, fats: 0.3 },
+                "Mirtilli": { calories: 57, proteins: 0.7, carbs: 14, fats: 0.3 },
+                "Limone": { calories: 29, proteins: 1.1, carbs: 9, fats: 0.3 },
+                "Mela": { calories: 52, proteins: 0.3, carbs: 14, fats: 0.2 },
+                "Banana": { calories: 89, proteins: 1.1, carbs: 23, fats: 0.3 }
+            }
+        };
+
+        let consumedFoods = [];
+        let userBMR = 2000; // Default
+        let isFullDatabaseLoaded = false;
+
+        // Variabili per la ricerca
+        let selectedFoodFromSearch = null;
+        let selectedCategoryFromSearch = null;
+        let selectedSuggestionIndex = -1;
+
+        // Funzione per cercare alimenti
+        function searchFoods(query) {
+            const results = [];
+            const searchTerm = query.toLowerCase().trim();
+            
+            if (searchTerm.length < 2) return results;
+            
+            // Cerca in tutte le categorie
+            for (const category in foodDatabase) {
+                for (const foodName in foodDatabase[category]) {
+                    if (foodName.toLowerCase().includes(searchTerm)) {
+                        results.push({
+                            name: foodName,
+                            category: category,
+                            data: foodDatabase[category][foodName]
+                        });
+                    }
+                }
+            }
+            
+            // Ordina i risultati per rilevanza (quelli che iniziano con il termine di ricerca prima)
+            results.sort((a, b) => {
+                const aStarts = a.name.toLowerCase().startsWith(searchTerm);
+                const bStarts = b.name.toLowerCase().startsWith(searchTerm);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            
+            return results.slice(0, 10); // Limita a 10 risultati
+        }
+
+        // Funzione per mostrare i suggerimenti
+        function showSuggestions(results) {
+            const suggestionsList = document.getElementById('suggestionsList');
+            
+            if (results.length === 0) {
+                suggestionsList.innerHTML = '<div class="no-results">Nessun alimento trovato</div>';
+                suggestionsList.style.display = 'block';
+                return;
+            }
+            
+            suggestionsList.innerHTML = results.map((item, index) => `
+                <div class="suggestion-item" data-index="${index}" onclick="selectSuggestion(${index})">
+                    <div>
+                        <strong>${item.name}</strong>
+                        <span class="suggestion-category">${formatCategoryName(item.category)}</span>
+                        <div class="suggestion-nutrients">
+                            Cal: ${item.data.calories} | P: ${item.data.proteins}g | C: ${item.data.carbs}g | G: ${item.data.fats}g
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            suggestionsList.style.display = 'block';
+        }
+
+        // Funzione per formattare il nome della categoria
+        function formatCategoryName(category) {
+            return category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ');
+        }
+
+        // Funzione per selezionare un suggerimento
+        function selectSuggestion(index) {
+            const searchInput = document.getElementById('searchInput');
+            const results = searchFoods(searchInput.value);
+            
+            if (results[index]) {
+                selectedFoodFromSearch = results[index].name;
+                selectedCategoryFromSearch = results[index].category;
+                
+                // Imposta i valori nei select
+                document.getElementById('foodCategory').value = selectedCategoryFromSearch;
+                updateFoodList();
+                
+                // Aspetta che la lista degli alimenti sia aggiornata
+                setTimeout(() => {
+                    document.getElementById('foodSelect').value = selectedFoodFromSearch;
+                    document.getElementById('foodQuantity').focus();
+                }, 100);
+                
+                // Nascondi suggerimenti e pulisci ricerca
+                document.getElementById('suggestionsList').style.display = 'none';
+                searchInput.value = '';
+            }
+        }
+
+        // Funzione per aggiornare la selezione visiva
+        function updateSelectedSuggestion(items) {
+            items.forEach((item, index) => {
+                if (index === selectedSuggestionIndex) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        // Funzione per caricare il database completo
+        function loadFullDatabase() {
+            const btn = document.getElementById('loadDbBtn');
+            const loader = document.getElementById('loader');
+            const dbStatus = document.getElementById('dbStatus');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Caricamento in corso...';
+            loader.style.display = 'block';
+            
+            // Carica il file JSON
+            fetch('foods.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Sostituisci il database base con quello completo
+                    foodDatabase = data;
+                    isFullDatabaseLoaded = true;
+                    
+                    // Aggiorna UI
+                    updateCategoryList();
+                    updateFoodCount();
+                    
+                    // Aggiorna stato
+                    btn.textContent = '✅ Database Completo Caricato!';
+                    btn.style.backgroundColor = '#27ae60';
+                    dbStatus.innerHTML = `Stai usando il database COMPLETO con <span id="foodCount">${getTotalFoodCount()}</span> alimenti`;
+                    loader.style.display = 'none';
+                    
+                    // Mostra messaggio di successo
+                    setTimeout(() => {
+                        document.getElementById('databaseInfo').style.backgroundColor = '#27ae60';
+                    }, 100);
+                })
+                .catch(error => {
+                    btn.disabled = false;
+                    btn.textContent = '❌ Errore! Riprova';
+                    loader.style.display = 'none';
+                    alert('Errore nel caricamento del database. Assicurati che il file foods.json sia nella stessa cartella del file HTML.');
+                    console.error('Error loading database:', error);
+                });
+        }
+
+        // Funzione per contare il totale degli alimenti
+        function getTotalFoodCount() {
+            let count = 0;
+            for (const category in foodDatabase) {
+                count += Object.keys(foodDatabase[category]).length;
+            }
+            return count;
+        }
+
+        // Aggiorna il conteggio degli alimenti
+        function updateFoodCount() {
+            document.getElementById('foodCount').textContent = getTotalFoodCount();
+        }
+
+        // Aggiorna la lista delle categorie
+        function updateCategoryList() {
+            const categorySelect = document.getElementById('foodCategory');
+            categorySelect.innerHTML = '<option value="">Seleziona categoria</option>';
+            
+            Object.keys(foodDatabase).forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category.charAt(0).toUpperCase() + category.slice(1).replace('_', ' ');
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // Aggiorna la lista degli alimenti
+        function updateFoodList() {
+            const category = document.getElementById('foodCategory').value;
+            const foodSelect = document.getElementById('foodSelect');
+            
+            foodSelect.innerHTML = '<option value="">Seleziona alimento</option>';
+            
+            if (category && foodDatabase[category]) {
+                Object.keys(foodDatabase[category]).forEach(food => {
+                    const option = document.createElement('option');
+                    option.value = food;
+                    option.textContent = food;
+                    foodSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Aggiungi alimento
+// Aggiungi alimento
+function addFood() {
+    const category = document.getElementById('foodCategory').value;
+    const foodName = document.getElementById('foodSelect').value;
+    const quantity = parseFloat(document.getElementById('foodQuantity').value);
+
+    if (!category || !foodName || !quantity) {
+        alert('Per favore, compila tutti i campi');
+        return;
+    }
+
+    const foodData = foodDatabase[category][foodName];
+    
+    if (!foodData) {
+        alert('Errore: dati nutrizionali non trovati per questo alimento');
+        return;
+    }
+    
+    const consumedFood = {
+        name: foodName,
+        category: category,
+        quantity: quantity || 0,
+        calories: ((foodData.calories || 0) * quantity) / 100,
+        proteins: ((foodData.proteins || 0) * quantity) / 100,
+        carbs: ((foodData.carbs || 0) * quantity) / 100,
+        fats: ((foodData.fats || 0) * quantity) / 100
+    };
+
+    consumedFoods.push(consumedFood);
+    updateUI();
+    
+    // Reset form
+    document.getElementById('foodCategory').value = '';
+    document.getElementById('foodSelect').value = '';
+    document.getElementById('foodQuantity').value = '';
+    
+    // Reset anche la ricerca
+    selectedFoodFromSearch = null;
+    selectedCategoryFromSearch = null;
+}
+
+// Rimuovi alimento
+function removeFood(index) {
+consumedFoods.splice(index, 1);
+updateUI();
+}
+
+// Aggiorna l'interfaccia
+// Aggiorna l'interfaccia
+function updateUI() {
+    // Update consumed foods list
+    const foodsListDiv = document.getElementById('consumedFoods');
+    foodsListDiv.innerHTML = '';
+    
+    consumedFoods.forEach((food, index) => {
+        const foodDiv = document.createElement('div');
+        foodDiv.className = 'food-item';
+        
+        // Assicurati che tutti i valori esistano, altrimenti usa 0
+        const calories = food.calories || 0;
+        const proteins = food.proteins || 0;
+        const carbs = food.carbs || 0;
+        const fats = food.fats || 0;
+        const quantity = food.quantity || 0;
+        
+        foodDiv.innerHTML = `
+            <div>
+                <strong>${food.name}</strong> (${quantity}g)
+                <br>
+                <small>Cal: ${calories.toFixed(0)} | P: ${proteins.toFixed(1)}g | C: ${carbs.toFixed(1)}g | G: ${fats.toFixed(1)}g</small>
+            </div>
+            <button class="remove-btn" onclick="removeFood(${index})">Rimuovi</button>
+        `;
+        foodsListDiv.appendChild(foodDiv);
+    });
+
+    // Calculate totals con valori di default
+    const totals = consumedFoods.reduce((acc, food) => {
+        acc.calories += food.calories || 0;
+        acc.proteins += food.proteins || 0;
+        acc.carbs += food.carbs || 0;
+        acc.fats += food.fats || 0;
+        return acc;
+    }, { calories: 0, proteins: 0, carbs: 0, fats: 0 });
+
+    // Update stats
+    document.getElementById('totalCalories').textContent = totals.calories.toFixed(0);
+    document.getElementById('totalProteins').textContent = totals.proteins.toFixed(1);
+    document.getElementById('totalCarbs').textContent = totals.carbs.toFixed(1);
+    document.getElementById('totalFats').textContent = totals.fats.toFixed(1);
+
+    // Update metabolic status
+    updateMetabolicStatus(totals);
+}
+
+// Calcola BMR
+function calculateBMR() {
+const weight = parseFloat(document.getElementById('userWeight').value);
+const height = parseFloat(document.getElementById('userHeight').value);
+const age = parseFloat(document.getElementById('userAge').value);
+const gender = document.getElementById('userGender').value;
+const activityLevel = parseFloat(document.getElementById('activityLevel').value);
+
+if (!weight || !height || !age) {
+    alert('Per favore, inserisci tutti i dati personali');
+    return;
+}
+
+// Mifflin-St Jeor Formula
+let bmr;
+if (gender === 'male') {
+    bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+} else {
+    bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+}
+
+// Total Daily Energy Expenditure (TDEE)
+userBMR = bmr * activityLevel;
+
+const bmrInfoDiv = document.getElementById('bmrInfo');
+bmrInfoDiv.innerHTML = `
+    <h4>💪 Il tuo fabbisogno calorico</h4>
+    <p><strong>Metabolismo basale (BMR):</strong> ${bmr.toFixed(0)} kcal/giorno</p>
+    <p><strong>Fabbisogno totale (TDEE):</strong> ${userBMR.toFixed(0)} kcal/giorno</p>
+    <p><small>Per perdere peso: ${(userBMR - 500).toFixed(0)} kcal/giorno</small></p>
+    <p><small>Per mantenere: ${userBMR.toFixed(0)} kcal/giorno</small></p>
+    <p><small>Per aumentare: ${(userBMR + 500).toFixed(0)} kcal/giorno</small></p>
+`;
+
+updateUI();
+}
+
+// Aggiorna stato metabolico
+function updateMetabolicStatus(totals) {
+const statusDiv = document.getElementById('metabolicStatus');
+let statusHTML = '';
+
+// Calcolo percentuali macronutrienti
+const totalCalories = totals.calories || 1; // Evita divisione per zero
+const proteinPercentage = ((totals.proteins * 4) / totalCalories) * 100;
+const carbPercentage = ((totals.carbs * 4) / totalCalories) * 100;
+const fatPercentage = ((totals.fats * 9) / totalCalories) * 100;
+
+// Determina se in catabolismo o anabolismo
+const calorieBalance = totals.calories - userBMR;
+const isInCatabolism = calorieBalance < -200;
+const isInAnabolism = calorieBalance > 200;
+
+// Determina se in chetosi
+const isKetogenic = carbPercentage < 10 && fatPercentage > 60;
+const carbsUnder50g = totals.carbs < 50;
+const carbsUnder20g = totals.carbs < 20;
+
+// Status catabolismo/anabolismo
+if (isInCatabolism) {
+    statusHTML += `
+        <div class="status-box status-catabolismo">
+            <h3>⬇️ CATABOLISMO</h3>
+            <p>Deficit calorico: ${Math.abs(calorieBalance).toFixed(0)} kcal</p>
+            <p>Stai perdendo peso</p>
+        </div>
+    `;
+} else if (isInAnabolism) {
+    statusHTML += `
+        <div class="status-box status-anabolismo">
+            <h3>⬆️ ANABOLISMO</h3>
+            <p>Surplus calorico: ${calorieBalance.toFixed(0)} kcal</p>
+            <p>Stai aumentando peso</p>
+        </div>
+    `;
+} else {
+    statusHTML += `
+        <div class="status-box" style="background-color: #f5f5f5; border: 2px solid #9e9e9e;">
+            <h3>⚖️ MANTENIMENTO</h3>
+            <p>Bilancio calorico: ${calorieBalance.toFixed(0)} kcal</p>
+            <p>Peso stabile</p>
+        </div>
+    `;
+}
+
+// Status chetosi
+if (carbsUnder20g && isKetogenic) {
+    statusHTML += `
+        <div class="status-box status-chetosi">
+            <h3>🔥 CHETOSI PROFONDA</h3>
+            <p>Carboidrati: ${totals.carbs.toFixed(1)}g (${carbPercentage.toFixed(1)}%)</p>
+            <p>Ottimo per la perdita di grasso!</p>
+        </div>
+    `;
+} else if (carbsUnder50g && fatPercentage > 50) {
+    statusHTML += `
+        <div class="status-box status-chetosi">
+            <h3>🟢 PROBABILE CHETOSI</h3>
+            <p>Carboidrati: ${totals.carbs.toFixed(1)}g (${carbPercentage.toFixed(1)}%)</p>
+            <p>Sei sulla strada giusta!</p>
+        </div>
+    `;
+} else {
+    statusHTML += `
+        <div class="status-box status-no-chetosi">
+            <h3>🟡 NO CHETOSI</h3>
+            <p>Carboidrati: ${totals.carbs.toFixed(1)}g (${carbPercentage.toFixed(1)}%)</p>
+            <p>Riduci i carboidrati per entrare in chetosi</p>
+        </div>
+    `;
+}
+
+// Raccomandazioni
+statusHTML += `
+    <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+        <h4>📊 Distribuzione Macronutrienti</h4>
+        <p>🥩 Proteine: ${proteinPercentage.toFixed(1)}% (${totals.proteins.toFixed(1)}g)</p>
+        <p>🍞 Carboidrati: ${carbPercentage.toFixed(1)}% (${totals.carbs.toFixed(1)}g)</p>
+        <p>🥑 Grassi: ${fatPercentage.toFixed(1)}% (${totals.fats.toFixed(1)}g)</p>
+        
+        <h4 style="margin-top: 15px;">💡 Consigli</h4>
+        ${getRecommendations(totals, carbPercentage, proteinPercentage, fatPercentage, calorieBalance)}
+    </div>
+`;
+
+statusDiv.innerHTML = statusHTML;
+}
+
+// Ottieni raccomandazioni
+function getRecommendations(totals, carbPerc, protPerc, fatPerc, calorieBalance) {
+let recommendations = '<ul style="text-align: left; margin-left: 20px;">';
+
+// Raccomandazioni per chetosi
+if (totals.carbs > 50) {
+    recommendations += '<li>🎯 Riduci i carboidrati sotto i 50g (idealmente sotto i 20g) per entrare in chetosi</li>';
+}
+if (fatPerc < 60 && totals.carbs < 50) {
+    recommendations += '<li>🥑 Aumenta i grassi sani (olio d\'oliva, avocado, noci) per raggiungere il 70% delle calorie</li>';
+}
+
+// Raccomandazioni per proteine
+const weight = parseFloat(document.getElementById('userWeight').value) || 70;
+const minProtein = weight * 0.8;
+const maxProtein = weight * 1.5;
+
+if (totals.proteins < minProtein) {
+    recommendations += `<li>🥩 Aumenta le proteine: minimo ${minProtein.toFixed(0)}g per preservare la massa muscolare</li>`;
+} else if (totals.proteins > maxProtein) {
+    recommendations += `<li>⚠️ Riduci le proteine: massimo ${maxProtein.toFixed(0)}g per non uscire dalla chetosi</li>`;
+}
+
+// Raccomandazioni caloriche
+if (calorieBalance < -1000) {
+    recommendations += '<li>⚠️ Deficit calorico troppo elevato: rischi di rallentare il metabolismo</li>';
+} else if (calorieBalance > 500 && totals.carbs < 50) {
+    recommendations += '<li>📈 Surplus calorico in chetosi: ottimo per aumentare massa muscolare senza grasso</li>';
+}
+
+// Idratazione e elettroliti
+if (totals.carbs < 20) {
+    recommendations += '<li>💧 Bevi almeno 2-3 litri d\'acqua al giorno e integra sodio, potassio e magnesio</li>';
+}
+
+recommendations += '</ul>';
+return recommendations;
+}
+
+// Salva dieta
+function saveDiet() {
+localStorage.setItem('ketoDiet', JSON.stringify(consumedFoods));
+localStorage.setItem('userData', JSON.stringify({
+    weight: document.getElementById('userWeight').value,
+    height: document.getElementById('userHeight').value,
+    age: document.getElementById('userAge').value,
+    gender: document.getElementById('userGender').value,
+    activityLevel: document.getElementById('activityLevel').value
+}));
+localStorage.setItem('databaseType', isFullDatabaseLoaded ? 'full' : 'base');
+alert('✅ Dieta salvata con successo!');
+}
+
+// Carica dieta
+// Carica dieta
+function loadDiet() {
+    const savedDiet = localStorage.getItem('ketoDiet');
+    const savedUserData = localStorage.getItem('userData');
+    const savedDbType = localStorage.getItem('databaseType');
+    
+    if (savedDiet) {
+        try {
+            const parsedDiet = JSON.parse(savedDiet);
+            
+            // Valida e correggi i dati caricati
+            consumedFoods = parsedDiet.map(food => ({
+                name: food.name || 'Alimento sconosciuto',
+                category: food.category || 'altro',
+                quantity: parseFloat(food.quantity) || 0,
+                calories: parseFloat(food.calories) || 0,
+                proteins: parseFloat(food.proteins) || 0,
+                carbs: parseFloat(food.carbs) || 0,
+                fats: parseFloat(food.fats) || 0
+            }));
+            
+            updateUI();
+        } catch (error) {
+            console.error('Errore nel caricamento della dieta:', error);
+            alert('⚠️ Errore nel caricamento della dieta. I dati potrebbero essere corrotti.');
+            consumedFoods = [];
+        }
+    }
+    
+    if (savedUserData) {
+        try {
+            const userData = JSON.parse(savedUserData);
+            document.getElementById('userWeight').value = userData.weight || 70;
+            document.getElementById('userHeight').value = userData.height || 175;
+            document.getElementById('userAge').value = userData.age || 30;
+            document.getElementById('userGender').value = userData.gender || 'male';
+            document.getElementById('activityLevel').value = userData.activityLevel || '1.2';
+            calculateBMR();
+        } catch (error) {
+            console.error('Errore nel caricamento dei dati utente:', error);
+        }
+    }
+
+    // Suggerisci di caricare il database completo se era utilizzato
+    if (savedDbType === 'full' && !isFullDatabaseLoaded) {
+        if (confirm('La dieta salvata utilizzava il database completo. Vuoi caricarlo ora?')) {
+            loadFullDatabase();
+        }
+    }
+
+    alert('✅ Dieta caricata con successo!');
+}
+
+// Reset dieta
+function resetDiet() {
+if (confirm('🗑️ Sei sicuro di voler resettare la dieta di oggi?')) {
+    consumedFoods = [];
+    updateUI();
+    alert('✅ Dieta resettata!');
+}
+}
+
+// Inizializzazione all'avvio
+window.onload = function() {
+updateCategoryList();
+updateFoodCount();
+calculateBMR();
+
+// Inizializza gli eventi di ricerca
+const searchInput = document.getElementById('searchInput');
+const suggestionsList = document.getElementById('suggestionsList');
+let searchTimeout;
+
+// Input event per la ricerca
+searchInput.addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value;
+    
+    if (query.length < 2) {
+        suggestionsList.style.display = 'none';
+        return;
+    }
+    
+    // Debounce per evitare troppe ricerche
+    searchTimeout = setTimeout(() => {
+        const results = searchFoods(query);
+        showSuggestions(results);
+    }, 300);
+});
+
+// Gestione tasti freccia e invio
+searchInput.addEventListener('keydown', function(e) {
+    const suggestionItems = document.querySelectorAll('.suggestion-item');
+    
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, suggestionItems.length - 1);
+                    updateSelectedSuggestion(suggestionItems);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, -1);
+                    updateSelectedSuggestion(suggestionItems);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedSuggestionIndex >= 0 && suggestionItems[selectedSuggestionIndex]) {
+                        selectSuggestion(selectedSuggestionIndex);
+                    }
+                } else if (e.key === 'Escape') {
+                    suggestionsList.style.display = 'none';
+                    selectedSuggestionIndex = -1;
+                }
+            });
+            
+            // Chiudi suggerimenti quando si clicca fuori
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-box')) {
+                    suggestionsList.style.display = 'none';
+                    selectedSuggestionIndex = -1;
+                }
+            });
+            
+            // Prova a caricare dati salvati
+            const savedDiet = localStorage.getItem('ketoDiet');
+            if (savedDiet) {
+                if (confirm('📂 Trovata una dieta salvata. Vuoi caricarla?')) {
+                    loadDiet();
+                }
+            }
+        };
+
+        // Salva automaticamente quando si chiude la pagina
+        window.addEventListener('beforeunload', function() {
+            if (consumedFoods.length > 0) {
+                saveDiet();
+            }
+        });
+    </script>
+</body>
+</html>
